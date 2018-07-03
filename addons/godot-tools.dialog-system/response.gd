@@ -1,0 +1,54 @@
+tool
+
+const Condition = preload("res://addons/godot-tools.dialog-system/condition.gd")
+
+var trid = ""
+var cond_ops = []
+
+func _init(trid):
+	self.trid = trid
+	
+func add_condition(cond, op):
+	var cond_op = ConditionOp.new(cond, op)
+	cond_ops.push_back(cond_op)
+	
+func resolve_conditions():
+	var last_op
+	var last_result
+	for cond_op in cond_ops:
+		var result = cond_op.cond.resolve()
+		if last_op and last_result:
+			match last_op:
+				"AND":
+					result = last_result and result
+				"OR":
+					result = last_result or result
+		last_result = result
+		last_op = cond_op.op
+	return last_result
+
+func condition_string():
+	if cond_ops.empty():
+		return "No conditions specified."
+		
+	var s = ""
+	for cond_op in cond_ops:
+		var cond = cond_op.cond
+		print(cond)
+		if cond is Condition:
+			s += " " + cond.to_string()
+		else:
+			s += " " + cond.get_script().resource_path
+		if cond_ops[-1] != cond_op:
+			s += " " + cond_op.op
+	return s.strip_edges()
+
+class ConditionOp:
+	var cond
+	var op
+	
+	func _init(cond, op):
+		self.cond = cond
+		self.op = op
+
+
