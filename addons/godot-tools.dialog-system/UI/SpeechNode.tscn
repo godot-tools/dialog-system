@@ -36,7 +36,7 @@ slot/1/right_enabled = false
 slot/1/right_type = 0
 slot/1/right_color = Color( 1, 1, 1, 1 )
 script = ExtResource( 1 )
-_sections_unfolded = [ "Mouse", "Size Flags", "slot", "slot/0", "slot/1", "slot/2" ]
+_sections_unfolded = [ "Mouse", "Size Flags", "slot/1", "slot/2" ]
 
 [node name="Say" type="Label" parent="." index="0"]
 

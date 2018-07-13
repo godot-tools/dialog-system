@@ -1,0 +1,4 @@
+
+func resolve():
+	pass
+

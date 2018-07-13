@@ -9,7 +9,6 @@ onready var _say = get_node("Say")
 onready var _sep = get_node("HSeparator") 
 onready var text = _say.text setget _set_text
 
-
 func _ready():
 	connect("resize_request", self, "_resize_request")
 	connect("close_request", self, "_close_request")
