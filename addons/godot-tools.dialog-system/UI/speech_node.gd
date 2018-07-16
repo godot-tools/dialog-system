@@ -9,6 +9,9 @@ onready var _say = get_node("Say")
 onready var _sep = get_node("HSeparator") 
 onready var text = _say.text setget _set_text
 
+signal response_added
+signal response_removed
+
 func _ready():
 	connect("resize_request", self, "_resize_request")
 	connect("close_request", self, "_close_request")
@@ -16,6 +19,7 @@ func _ready():
 func add_response(resp):
 	_new_slot(resp)
 	_sep.visible = true
+	emit_signal("response_added", self, resp)
 	
 
 func remove_response(resp):
@@ -27,6 +31,7 @@ func remove_response(resp):
 			# we still have the label and HSeparator nodes
 			if get_child_count() <= 2:
 				_sep.visible = false
+			emit_signal("response_removed", self, resp)
 			return
 
 func clear_responses():
@@ -35,6 +40,7 @@ func clear_responses():
 		if child.is_in_group("Slot"):
 			remove_child(child)
 			child.queue_free()
+			emit_signal("response_removed", self, child.response)
 
 func get_responses():
 	var responses = []
