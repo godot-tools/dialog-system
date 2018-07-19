@@ -3,7 +3,7 @@ tool
 extends EditorPlugin
 
 const Exporter = preload("res://addons/godot-tools.dialog-system/dialog_node_exporter.gd")
-const DialogTree = preload("res://addons/godot-tools.dialog-system/UI/dialog_tree_node.gd")
+const DialogTree = preload("res://addons/godot-tools.dialog-system/dialog_tree_node.gd")
 
 var dock
 var tree_path = "res://test.dt"
@@ -18,7 +18,7 @@ func _exit_tree():
 
 func save_external_data():
 	print("save")
-	var exporter = Exporter.new(dock.tree)
+	var exporter = Exporter.new(dock._root.dnode)
 	print(exporter.export_node(tree_path))
 
 func handles(object):

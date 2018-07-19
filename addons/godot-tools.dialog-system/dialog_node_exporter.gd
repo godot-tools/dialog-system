@@ -25,15 +25,10 @@ func export_to_file(f):
 	
 
 func _build_config(root, d):
-	d[root.node.name] = _serialize_node(root.node)
-	for child in root.children:
-		_build_config(child, d[root.node.name]["children"])
-
-func _get_child(name):
-	for child in _node.get_children():
-		if child.name == name:
-			return child
-	return null
+	print(root)
+	d[root.name] = _serialize_node(root)
+	for idx in root.children:
+		_build_config(root.children[idx], d[root.name]["children"])
 
 func _serialize_node(node):
 	var d = {
@@ -41,8 +36,8 @@ func _serialize_node(node):
 		"responses": [],
 		"children": {},
 	}
-	var responses = node.get_responses()
-	for resp in responses:
+	for idx in node.responses:
+		var resp = node.responses[idx]
 		var resp_d = {
 			"trid": resp.trid,
 			"conditions": [],
