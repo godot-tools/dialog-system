@@ -1,3 +1,5 @@
+tool
+
 const OP_EQ = "=="
 const OP_NE = "!="
 const OP_LT = "<"

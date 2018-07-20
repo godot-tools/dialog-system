@@ -9,16 +9,19 @@ onready var _say = get_node("Say")
 onready var _sep = get_node("HSeparator") 
 onready var text = _say.text setget _set_text
 
-var dnode
+var dnode setget _set_dnode
 
 func _ready():
 	connect("resize_request", self, "_resize_request")
 	connect("close_request", self, "_close_request")
+	connect("dragged", self, "_dragged")
 
-func add_response(resp):
-	_new_slot(resp)
+func add_response(resp, add_response=true):
+	var slot = _new_slot(resp)
+	if add_response:
+		# We subtract two from the node index to account for the text Label and HSeparator nodes.
+		dnode.responses[slot.get_index()-2] = resp
 	_sep.visible = true
-	
 
 func remove_response(resp):
 	for child in get_children():
@@ -57,7 +60,7 @@ func _new_slot(resp):
 	print(get_child_count())
 	print(slot.get_index())
 	set_slot(slot.get_index(), false, 0, ColorN("white"), true, 0, ColorN("white"))
-	dnode.responses[slot.get_index()] = resp
+	return slot
 
 func _slot_deleted(slot):
 	var idx = slot.get_index()
@@ -91,13 +94,30 @@ func _gui_input(event):
 			accept_event()
 		elif event.button_index == BUTTON_RIGHT:
 			accept_event()
-		
+
+func _dragged(from, to):
+	dnode.pos = to
+
 func _set_text(val):
 	text = val
 	var tr = tr(text)
 	_say.text = tr if tr else text
 	dnode.text = text
 
+func _set_dnode(val):
+	if dnode and dnode.name == val.name:
+		return 
+	print("set_dnode")
+	dnode = val
+	print("text: ", val.text)
+	_set_text(val.text)
+	print("name: ", val.name)
+	name = val.name
+	offset = val.pos
+	print("resp: ", val.responses.size())
+	for idx in val.responses:
+		add_response(val.responses[idx], false)
+	
 func _resize_request(new_minsize):
 	self.rect_size = new_minsize
 	
@@ -108,7 +128,7 @@ func _close_request():
 	for conn in conns:
 		if conn["from"] == name or conn["to"] == name:
 			print("disconnect node!")
-			#graph.disconnect_node(conn["from"], conn["from_port"], conn["to"], conn["to_port"])
-			graph.emit_signal("disconnection_request", conn["from"], conn["from_port"], conn["to"], conn["to_port"])
+			graph._disconnect_request(conn["from"], conn["from_port"], conn["to"], conn["to_port"])
+			#graph.emit_signal("disconnection_request", conn["from"], conn["from_port"], conn["to"], conn["to_port"])
 	graph.remove_child(self)
 	queue_free()

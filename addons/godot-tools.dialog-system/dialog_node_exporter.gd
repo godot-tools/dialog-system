@@ -1,3 +1,4 @@
+tool
 
 const Condition = preload("res://addons/godot-tools.dialog-system/condition.gd")
 
@@ -19,21 +20,26 @@ func export_node(path):
 	return f.get_error()
 
 func export_to_file(f):
-	var d = {}
-	_build_config(_node, d)
+	var d = _build_config(_node)
 	f.store_string(to_json(d))
 	
 
-func _build_config(root, d):
-	print(root)
-	d[root.name] = _serialize_node(root)
+func _build_config(root):
+	var serialized = _serialize_node(root)
+	print("children size: ", root.children.size())
 	for idx in root.children:
-		_build_config(root.children[idx], d[root.name]["children"])
+		serialized["children"][idx] = _build_config(root.children[idx])
+	return serialized
 
 func _serialize_node(node):
 	var d = {
+		"name": node.name,
 		"text": node.text,
-		"responses": [],
+		"pos": {
+			"x": node.pos.x,
+			"y": node.pos.y
+		},
+		"responses": {},
 		"children": {},
 	}
 	for idx in node.responses:
@@ -43,7 +49,7 @@ func _serialize_node(node):
 			"conditions": [],
 		}
 		for cond_op in resp.cond_ops:
-			if cond_op.cond is Condition:
+			if typeof(cond_op.cond) == TYPE_OBJECT and cond_op.cond is Condition:
 				resp_d["conditions"].push_back({
 					"type": VAR,
 					"left_var": cond_op.cond.left_var,
@@ -51,11 +57,11 @@ func _serialize_node(node):
 					"op": cond_op.cond.op,
 					"cond_op": cond_op.op,
 				})
-			else:
+			elif typeof(cond_op.cond) == TYPE_STRING:
 				resp_d["conditions"].push_back({
 					"type": SCRIPT,
-					"path": cond_op.cond.get_script().resource_path,
+					"path": cond_op.cond,
 					"cond_op": cond_op.op,
 				})
-		d["responses"].push_back(resp_d)
+		d["responses"][idx] = resp_d
 	return d

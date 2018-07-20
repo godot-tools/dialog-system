@@ -26,10 +26,10 @@ func _item_selected(id):
 
 func _set_condition(val):
 	condition = val
-	if val is Condition:
+	if typeof(val) == TYPE_OBJECT and val is Condition:
 		_cond.text = val.to_string()
-	elif val.has_method("resolve"):
-		_cond.text = val.get_script().resource_path
+	elif typeof(val) == TYPE_STRING:
+		_cond.text = val
 
 func _set_op(val):
 	op = val

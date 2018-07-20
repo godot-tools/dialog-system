@@ -51,7 +51,7 @@ func _file_selected(path):
 		return
 	var script = res.new()
 	if script.has_method("resolve"):
-		_on_new_condition(script)
+		_on_new_condition(path)
 
 func _on_new_condition(cond):
 	if _no_conditions.visible:

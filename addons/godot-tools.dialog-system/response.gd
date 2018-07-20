@@ -35,10 +35,10 @@ func condition_string():
 	for cond_op in cond_ops:
 		var cond = cond_op.cond
 		print(cond)
-		if cond is Condition:
+		if typeof(cond) == TYPE_OBJECT and cond is Condition:
 			s += " " + cond.to_string()
-		else:
-			s += " " + cond.get_script().resource_path
+		elif typeof(cond) == TYPE_STRING:
+			s += " " + cond
 		if cond_ops[-1] != cond_op:
 			s += " " + cond_op.op
 	return s.strip_edges()
