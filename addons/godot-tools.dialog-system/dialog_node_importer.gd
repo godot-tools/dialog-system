@@ -32,10 +32,11 @@ func _build_dnode(d):
 		dnode.text = d["text"]
 		dnode.pos.x = d["pos"]["x"]
 		dnode.pos.y = d["pos"]["y"]
-		for idx in d["responses"]:
-			dnode.responses[idx] = _parse_response(d["responses"][idx])
-		for idx in d["children"]:
-			dnode.children[idx] = _build_dnode(d["children"][idx])
+		dnode.resp_idx = d["resp_idx"]
+		for resp in d["responses"]:
+			dnode.responses.push_back(_parse_response(resp))
+		for child in d["children"]:
+			dnode.children.push_back(_build_dnode(child))
 		return dnode
 
 func _parse_response(d):

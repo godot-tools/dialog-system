@@ -4,6 +4,7 @@ const Condition = preload("res://addons/godot-tools.dialog-system/condition.gd")
 
 var trid = ""
 var cond_ops = []
+var child_idx = -1
 
 func _init(trid):
 	self.trid = trid

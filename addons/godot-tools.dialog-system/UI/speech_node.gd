@@ -19,38 +19,23 @@ func _ready():
 func add_response(resp, add_response=true):
 	var slot = _new_slot(resp)
 	if add_response:
-		# We subtract two from the node index to account for the text Label and HSeparator nodes.
-		dnode.responses[slot.get_index()-2] = resp
+		dnode.responses.push_back(resp)
 	_sep.visible = true
 
 func remove_response(resp):
 	for child in get_children():
 		if child.is_in_group("Slot") and child.response == resp:
-			_remove_child_slot(child)
+			_slot_delted(child)
 			return
 
 func clear_responses():
 	print("clear slots")
 	for child in get_children():
 		if child.is_in_group("Slot"):
-			_remove_child_slot(child)
+			_slot_deleted(child, false)
 
 func get_responses():
-	var responses = []
-	for child in get_children():
-		if child.is_in_group("Slot"):
-			responses.push_back(child.response)
-	return responses
-
-func _remove_child_slot(child):
-	var resp = child.response
-	remove_child(child)
-	child.queue_free()
-	# We compare to 2 here instead of 0 because
-	# we still have the label and HSeparator nodes
-	if get_child_count() <= 2:
-		_sep.visible = false
-	dnode.responses.erase(resp)
+	return dnode.responses.duplicate()
 
 func _new_slot(resp):
 	var slot = Slot.instance()
@@ -59,27 +44,48 @@ func _new_slot(resp):
 	slot.response = resp
 	print(get_child_count())
 	print(slot.get_index())
-	set_slot(slot.get_index(), false, 0, ColorN("white"), true, 0, ColorN("white"))
+	var color = ColorN("white")
+	var type = 0
+	var child = dnode.get_child_for_resp(resp)
+	if child:
+		color = ColorN("blue")
+		type = 1
+	set_slot(slot.get_index(), false, 0, ColorN("white"), true, type, color)
 	return slot
 
-func _slot_deleted(slot):
-	var idx = slot.get_index()
-	_disconnect_slot(slot)
+func _slot_deleted(slot, disconnect_slots=true):
+	var resp = slot.response
+	if disconnect_slots:
+		_disconnect_slots()
 	remove_child(slot)
 	# We compare to 2 here instead of 0 because
 	# we still have the label and HSeparator nodes
 	if get_child_count() <= 2:
 		_sep.visible = false
 	slot.queue_free()
-	dnode.responses.erase(idx)
+	dnode.remove_response(resp, disconnect_slots)
+	if disconnect_slots:
+		reconnect_slots()
 
-func _disconnect_slot(slot):
+func _disconnect_slots():
 	var graph = get_parent()
 	var conns = graph.get_connection_list()
 	for conn in conns:
-		# We subtract two from the slot index because apparently the connection request only considers active ports.
-		if conn["from"] == name and conn["from_port"] == slot.get_index() - 2:
+		if conn["from"] == name:
+			print("port: ", conn["from_port"])
+			set_slot(conn["from_port"]+2, false, 0, ColorN("white"), true, 0, ColorN("white"))
 			graph.disconnect_node(conn["from"], conn["from_port"], conn["to"], conn["to_port"])
+
+func reconnect_slots():
+	var graph = get_parent()
+	print("child size: ", dnode.children.size())
+	for child in dnode.children:
+		print("resp idx: ", child.resp_idx)
+		if child.resp_idx >= 0:
+			set_slot(child.resp_idx+2, false, 0, ColorN("white"), true, 1, ColorN("blue"))
+			var child_node = graph.get_speech_node(child.name)
+			child_node.set_slot(0, true, 1, ColorN("blue"), false, 0, ColorN("white"))
+			graph.connect_node(name, child.resp_idx, child.name, 0)
 
 func _gui_input(event):
 	if not event is InputEventMouseButton:
@@ -110,16 +116,12 @@ func _set_dnode(val):
 		return
 	if dnode and dnode.name == val.name:
 		return 
-	print("set_dnode")
 	dnode = val
-	print("text: ", val.text)
 	_set_text(val.text)
-	print("name: ", val.name)
 	name = val.name
 	offset = val.pos
-	print("resp: ", val.responses.size())
-	for idx in val.responses:
-		add_response(val.responses[idx], false)
+	for resp in val.responses:
+		add_response(resp, false)
 	
 func _resize_request(new_minsize):
 	self.rect_size = new_minsize

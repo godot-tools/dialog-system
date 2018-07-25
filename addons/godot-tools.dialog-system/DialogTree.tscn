@@ -2,9 +2,9 @@
 
 [ext_resource path="res://addons/godot-tools.dialog-system/dialog_tree_node.gd" type="Script" id=1]
 
-[node name="DialogTree" type="Node"]
+[node name="DialogTree" type="Node" index="0"]
 
 script = ExtResource( 1 )
-tree_path = null
+tree_path = "Null"
 
 

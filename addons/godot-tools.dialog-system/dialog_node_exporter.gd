@@ -27,23 +27,23 @@ func export_to_file(f):
 func _build_config(root):
 	var serialized = _serialize_node(root)
 	print("children size: ", root.children.size())
-	for idx in root.children:
-		serialized["children"][idx] = _build_config(root.children[idx])
+	for child in root.children:
+		serialized["children"].push_back(_build_config(child))
 	return serialized
 
 func _serialize_node(node):
 	var d = {
 		"name": node.name,
 		"text": node.text,
+		"resp_idx": node.resp_idx,
 		"pos": {
 			"x": node.pos.x,
 			"y": node.pos.y
 		},
-		"responses": {},
-		"children": {},
+		"responses": [],
+		"children": [],
 	}
-	for idx in node.responses:
-		var resp = node.responses[idx]
+	for resp in node.responses:
 		var resp_d = {
 			"trid": resp.trid,
 			"conditions": [],
@@ -63,5 +63,5 @@ func _serialize_node(node):
 					"path": cond_op.cond,
 					"cond_op": cond_op.op,
 				})
-		d["responses"][idx] = resp_d
+		d["responses"].push_back(resp_d)
 	return d

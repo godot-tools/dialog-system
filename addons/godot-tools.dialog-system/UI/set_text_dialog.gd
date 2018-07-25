@@ -63,6 +63,7 @@ func _add_responses_to_node():
 	node.clear_responses()
 	for child in _responses.get_children():
 		node.add_response(child.response)
+	node.reconnect_slots()
 		
 func _populate_responses(responses):
 	for resp in responses:
