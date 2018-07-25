@@ -9,7 +9,7 @@ var dock
 var tree_path = "res://test.dt"
 
 func _enter_tree():
-	dock = preload("res://addons/godot-tools.dialog-system/UI/DialogEditor.tscn").instance()
+	dock = preload("res://addons/godot-tools.dialog-system/UI/DialogEditorPanel.tscn").instance()
 	add_control_to_bottom_panel(dock, "Dialog Editor")
 	
 func _exit_tree():
@@ -17,13 +17,5 @@ func _exit_tree():
 	dock.free()
 
 func save_external_data():
-	print("save")
-	var exporter = Exporter.new(dock._root.dnode)
-	print(exporter.export_node(tree_path))
-
-func handles(object):
-	return typeof(object) == TYPE_OBJECT and object is DialogTree
-	
-func edit(object):
-	tree_path = object.tree_path
+	dock.editor.save()
 

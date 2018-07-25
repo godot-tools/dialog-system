@@ -4,11 +4,14 @@ extends GraphEdit
 
 const DNode = preload("res://addons/godot-tools.dialog-system/dnode.gd")
 const SpeechNode = preload("res://addons/godot-tools.dialog-system/UI/SpeechNode.tscn")
-#const Importer = preload("res://addons/godot-tools.dialog-system/dialog_node_importer.gd")
+const Exporter = preload("res://addons/godot-tools.dialog-system/dialog_node_exporter.gd")
+const Importer = preload("res://addons/godot-tools.dialog-system/dialog_node_importer.gd")
 
 
 onready var _root = get_node("DialogRoot")
 onready var _context_menu = get_node("NewNodePopup")
+
+var tree_path setget _set_tree_path
 
 func _ready():
 	_context_menu.connect("id_pressed", self, "_on_new_node")
@@ -21,11 +24,16 @@ func _ready():
 	
 
 func set_dnode(dnode):
+	_clear()
 	# Ensure that we have the correct name. This should already be case
 	# but can never be too sure with user provided data ¯\_(ツ)_/¯
 	dnode.name = _root.name
 	_root.dnode = dnode
 	_init_dnodes(_root)
+
+func save():
+	var exporter = Exporter.new(_root.dnode)
+	print(exporter.export_node(tree_path))
 
 func _init_dnodes(root_node):
 	# TODO: Sort children (Maybe?)
@@ -97,8 +105,36 @@ func _is_node_connected(node):
 			return true
 	return false
 
+func _clear():
+	_root.clear_responses()
+	clear_connections()
+	for child in get_children():
+		if child != _root and  child is GraphNode:
+			remove_child(child)
+			child.queue_free()
+	_root.dnode = null
+
 func _get_speech_node(name):
 	for child in get_children():
 		if child.name == name:
 			return child
 	return null
+
+func _set_tree_path(val):
+	if tree_path:
+		save()
+	tree_path = val
+	var f = File.new()
+	if f.file_exists(val):
+		print("file exists! ", val)
+		_load(val)
+	else:
+		print("file doesnt exist. :(")
+		set_dnode(DNode.new(_root.name, Vector2(100, 80)))
+	f.close()
+
+func _load(path):
+	var importer = Importer.new()
+	var dnode = importer.import_node(path)
+	print(dnode.text)
+	set_dnode(dnode)

@@ -105,6 +105,9 @@ func _set_text(val):
 	dnode.text = text
 
 func _set_dnode(val):
+	if not val:
+		dnode = null
+		return
 	if dnode and dnode.name == val.name:
 		return 
 	print("set_dnode")
