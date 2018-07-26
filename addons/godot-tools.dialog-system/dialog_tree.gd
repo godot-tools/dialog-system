@@ -1,3 +1,0 @@
-extends Resource
-
-var root
