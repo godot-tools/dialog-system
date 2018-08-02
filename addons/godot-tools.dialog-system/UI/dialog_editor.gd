@@ -27,13 +27,10 @@ func set_dnode(dnode):
 	dnode.name = _root.name
 	_root.dnode = dnode
 	_init_dnodes(_root)
-	for conn in get_connection_list():
-		var to_node = get_speech_node(conn["to"])
-		to_node.set_slot(0, true, 1, ColorN("blue"), false, 0, ColorN("white"))
 
 func save():
 	var exporter = Exporter.new(_root.dnode)
-	print(exporter.export_node(tree_path))
+	exporter.export_node(tree_path)
 
 func is_root(node):
 	return node == _root
@@ -51,11 +48,14 @@ func sweep():
 func _init_dnodes(root_node):
 	var root = root_node.dnode
 	for child in root.children:
-		if child.resp_idx >= 0:
-			var node = _new_speech_node(child)
-			connect_node(root.name, child.resp_idx, child.name, 0)
-			root_node.set_slot(child.resp_idx+2, false, 0, ColorN("white"), true, 1, ColorN("blue"))
-			_init_dnodes(node)
+		if not child.resp_indicies.empty():
+			for resp_idx in child.resp_indicies:
+				connect_node(root.name, resp_idx, child.name, 0)
+				root_node.set_slot(resp_idx+2, false, 0, ColorN("white"), true, 1, ColorN("blue"))
+			var child_node = get_speech_node(child.name)
+			if not child_node:
+				child_node = _new_speech_node(child)
+			_init_dnodes(child_node)
 
 func _on_new_node(id):
 	match id:
@@ -77,31 +77,22 @@ func _gui_input(event):
 	
 		
 func _connection_request(from, from_slot, to, to_slot):
-	print("conn request!")
 	var from_node = get_speech_node(from)
 	var to_node = get_speech_node(to)
 	var has_connection = from_node.dnode.has_connection(from_slot)
-	print(has_connection)
 	var is_connected = is_node_connected(from, from_slot, to, to_slot)
-	print(is_connected)
 	if not has_connection:
 		if not from_node.dnode.children.has(to_node.dnode):
 			from_node.dnode.children.push_back(to_node.dnode)
-		to_node.dnode.resp_idx = from_slot
+		to_node.dnode.resp_indicies.push_back(from_slot)
 		from_node.set_slot(from_slot+2, false, 0, ColorN("white"), true, 1, ColorN("blue"))
-		to_node.set_slot(to_slot, true, 1, ColorN("blue"), false, 0, ColorN("white"))
 		connect_node(from, from_slot, to, to_slot)
 
 func _disconnect_request(from, from_slot, to, to_slot):
-	print("disonnect request!")
 	var from_node = get_speech_node(from)
 	var to_node = get_speech_node(to)
-	print(from_node.name)
-	print(to_node.dnode.text)
-	print(from_slot)
 	from_node.dnode.remove_child(to_node.dnode)
 	from_node.set_slot(from_slot+2, false, 0, ColorN("white"), true, 0, ColorN("white"))
-	to_node.set_slot(0, true, 0, ColorN("white"), false, 0, ColorN("white"))
 	disconnect_node(from, from_slot, to, to_slot)
 
 func _close_request(node):
@@ -154,5 +145,4 @@ func _set_tree_path(val):
 func _load(path):
 	var importer = Importer.new()
 	var dnode = importer.import_node(path)
-	print(dnode.text)
 	set_dnode(dnode)

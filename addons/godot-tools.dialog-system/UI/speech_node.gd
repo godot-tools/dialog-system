@@ -29,7 +29,6 @@ func remove_response(resp):
 			return
 
 func clear_responses():
-	print("clear slots")
 	for child in get_children():
 		if child.is_in_group("Slot"):
 			_slot_deleted(child, false)
@@ -42,8 +41,6 @@ func _new_slot(resp):
 	add_child(slot)
 	slot.connect("deleted", self, "_slot_deleted")
 	slot.response = resp
-	print(get_child_count())
-	print(slot.get_index())
 	var color = ColorN("white")
 	var type = 0
 	var child = dnode.get_child_for_resp(resp)
@@ -72,15 +69,12 @@ func _disconnect_slots():
 	var conns = graph.get_connection_list()
 	for conn in conns:
 		if conn["from"] == name:
-			print("port: ", conn["from_port"])
 			set_slot(conn["from_port"]+2, false, 0, ColorN("white"), true, 0, ColorN("white"))
 			graph.disconnect_node(conn["from"], conn["from_port"], conn["to"], conn["to_port"])
 
 func reconnect_slots():
 	var graph = get_parent()
-	print("child size: ", dnode.children.size())
 	for child in dnode.children:
-		print("resp idx: ", child.resp_idx)
 		if child.resp_idx >= 0:
 			set_slot(child.resp_idx+2, false, 0, ColorN("white"), true, 1, ColorN("blue"))
 			var child_node = graph.get_speech_node(child.name)
@@ -127,12 +121,10 @@ func _resize_request(new_minsize):
 	self.rect_size = new_minsize
 	
 func _close_request():
-	print("close request!")
 	var graph = get_parent()
 	var conns = graph.get_connection_list()
 	for conn in conns:
 		if conn["from"] == name or conn["to"] == name:
-			print("disconnect node!")
 			graph._disconnect_request(conn["from"], conn["from_port"], conn["to"], conn["to_port"])
 			#graph.emit_signal("disconnection_request", conn["from"], conn["from_port"], conn["to"], conn["to_port"])
 	graph.remove_child(self)

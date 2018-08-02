@@ -12,7 +12,6 @@ func _ready():
 	_fd.connect("file_selected", self, "_file_selected")
 
 func _new_btn_pressed():
-	print("pressed")
 	_fd.popup_centered()
 
 func _file_selected(path):

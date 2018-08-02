@@ -48,7 +48,6 @@ func _response_row_removed(row):
 func _okay():
 	hide()
 	get_parent().remove_child(self)
-	print(_say.text)
 	if node:
 		node.text = _say.text
 		_add_responses_to_node()
