@@ -46,7 +46,9 @@ func has_connection(idx):
 	return false
 
 func get_child_for_resp(resp):
-	var idx = responses.find(resp)
+	var idx = resp
+	if typeof(resp) != TYPE_INT:
+		idx = responses.find(resp)
 	if idx < 0:
 		return null
 	for child in children:
