@@ -7,10 +7,11 @@ export(String, FILE, "*.dt ; DialogTree files") var tree_path
 var _tree
 
 func _ready():
-	var importer = Importer.new()
-	_tree = importer.import_node(tree_path)
-	if typeof(_tree) == TYPE_INT:
-		print("error importing file! ", _tree)
+	if tree_path:
+		var importer = Importer.new()
+		_tree = importer.import_node(tree_path)
+		if typeof(_tree) == TYPE_INT:
+			print("error importing file! ", _tree)
 
 func get_root():
 	return _tree
@@ -21,7 +22,7 @@ func get_responses(root=null):
 	var responses = []
 	for resp in root.responses:
 		if resp.resolve_conditions():
-			response.push_back(resp)
+			responses.push_back(resp)
 	return responses
 
 func get_child(resp):
