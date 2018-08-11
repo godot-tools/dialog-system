@@ -52,6 +52,7 @@ func get_child_for_resp(resp):
 	if idx < 0:
 		return null
 	for child in children:
-		if child.resp_indicies.has(idx):
-			return child
+		for r in child.resp_indicies:
+			if r == idx:
+				return child
 	return null
