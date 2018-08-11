@@ -15,7 +15,7 @@ func add_condition(cond, op):
 	
 func resolve_conditions():
 	var last_op
-	var last_result
+	var last_result = true
 	for cond_op in cond_ops:
 		var result = cond_op.cond.resolve()
 		if last_op and last_result:
